@@ -72,15 +72,6 @@
         "getIpURL": "backend/getIP.php"
     },
     {
-        "id": 8,
-        "name": "治部少辅codewoody",
-        "server": "http://cloud.codewoody.com:8888",
-        "dlURL": "backend/garbage.php",
-        "ulURL": "backend/empty.php",
-        "pingURL": "backend/empty.php",
-        "getIpURL": "backend/getIP.php"
-    },
-    {
         "id": 9,
         "name": "齐鲁工业大学",
         "server": "https://speed.qlu.edu.cn",
@@ -138,6 +129,15 @@
         "id": 15,
         "name": "郑州聚通Speedtest",
         "server": "http://st.jutonet.net:900",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 16,
+        "name": "治部少辅codewoody",
+        "server": "http://cloud.codewoody.com:8888",
         "dlURL": "backend/garbage.php",
         "ulURL": "backend/empty.php",
         "pingURL": "backend/empty.php",
