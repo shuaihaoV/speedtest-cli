@@ -1,47 +1,146 @@
 [
-  {
-    "id": 1,
-    "name": "南京航空航天大学5g",
-    "server": "http://speed.nuaa.edu.cn",
-    "dlURL": "backend/garbage.php",
-    "ulURL": "backend/empty.php",
-    "pingURL": "backend/empty.php",
-    "getIpURL": "backend/getIP.php"
-  },
-  {
-    "id": 2,
-    "name": "南京大学测速站v4",
-    "server": "https://test.nju.edu.cn",
-    "dlURL": "backend/garbage.php",
-    "ulURL": "backend/empty.php",
-    "pingURL": "backend/empty.php",
-    "getIpURL": "backend/getIP.php"
-  },
-  {
-    "id": 3,
-    "name": "南京大学测速站v6",
-    "server": "https://test6.nju.edu.cn",
-    "dlURL": "backend/garbage.php",
-    "ulURL": "backend/empty.php",
-    "pingURL": "backend/empty.php",
-    "getIpURL": "backend/getIP.php"
-  },
-  {
-    "id": 4,
-    "name": "中国科学技术大学测速网站v4",
-    "server": "http://test.ustc.edu.cn",
-    "dlURL": "backend/garbage.php",
-    "ulURL": "backend/empty.php",
-    "pingURL": "backend/empty.php",
-    "getIpURL": "backend/getIP.php"
-  },
-  {
-    "id": 5,
-    "name": "中国科学技术大学测速网站v6",
-    "server": "http://test6.ustc.edu.cn",
-    "dlURL": "backend/garbage.php",
-    "ulURL": "backend/empty.php",
-    "pingURL": "backend/empty.php",
-    "getIpURL": "backend/getIP.php"
-  }
+    {
+        "id": 1,
+        "name": "南京航空航天大学v4",
+        "server": "http://speed.nuaa.edu.cn",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 2,
+        "name": "南京大学测速站v4",
+        "server": "https://test.nju.edu.cn",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 3,
+        "name": "南京大学测速站v6",
+        "server": "https://test6.nju.edu.cn",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 4,
+        "name": "中国科学技术大学测速网站v4",
+        "server": "http://test.ustc.edu.cn",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 5,
+        "name": "中国科学技术大学测速网站v6",
+        "server": "http://test6.ustc.edu.cn",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 6,
+        "name": "上海大学-现教中心v4",
+        "server": "https://speedtest4.cc.shu.edu.cn",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 7,
+        "name": "西安科技大学Seesea团队v4",
+        "server": "https://speedtest4.seesea.site",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 8,
+        "name": "西安科技大学Seesea团队v6",
+        "server": "https://speedtest6.seesea.site",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 8,
+        "name": "治部少辅codewoody",
+        "server": "http://cloud.codewoody.com:8888",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 9,
+        "name": "齐鲁工业大学",
+        "server": "https://speed.qlu.edu.cn",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 10,
+        "name": "河南财政金融学院-教育网v4出口",
+        "server": "http://210.42.224.211:28080",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 11,
+        "name": "河南财政金融学院-教育网v6出口",
+        "server": "http://[2001:da8:5011:a::211]:28080",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 12,
+        "name": "河南财政金融学院-联通出口",
+        "server": "http://218.29.67.242:28080",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 13,
+        "name": "合肥国家实验室",
+        "server": "https://test.hfnl.cn",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 14,
+        "name": "立通通讯Speedtest",
+        "server": "http://speedtest.datanow.net.cn",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    },
+    {
+        "id": 15,
+        "name": "郑州聚通Speedtest",
+        "server": "http://st.jutonet.net:900",
+        "dlURL": "backend/garbage.php",
+        "ulURL": "backend/empty.php",
+        "pingURL": "backend/empty.php",
+        "getIpURL": "backend/getIP.php"
+    }
 ]
