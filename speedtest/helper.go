@@ -18,7 +18,7 @@ import (
 	"github.com/librespeed/speedtest-cli/defs"
 	"github.com/librespeed/speedtest-cli/report"
 	log "github.com/sirupsen/logrus"
-"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v2"
 )
 
 const (
@@ -27,7 +27,7 @@ const (
 )
 
 // doSpeedTest is where the actual speed test happens
-func doSpeedTest(c *cli.Context, servers []defs.Server, telemetryServer defs.TelemetryServer, network string, silent bool, noICMP bool) error {
+func doSpeedTest(c *cli.Context, servers []defs.Server, telemetryServer defs.TelemetryServer, network string, silent bool, noICMP bool, CustomUserAgent string, CustomHttpHeaderKey string, CustomHttpHeaderValue string) error {
 	if serverCount := len(servers); serverCount > 1 {
 		log.Infof("Testing against %d servers", serverCount)
 	}
@@ -52,8 +52,8 @@ func doSpeedTest(c *cli.Context, servers []defs.Server, telemetryServer defs.Tel
 			log.Infof("Sponsored by: %s", sponsorMsg)
 		}
 
-		if currentServer.IsUp() {
-			ispInfo, err := currentServer.GetIPInfo(c.String(defs.OptionDistance))
+		if currentServer.IsUp(CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue) {
+			ispInfo, err := currentServer.GetIPInfo(c.String(defs.OptionDistance), CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue)
 			if err != nil {
 				log.Errorf("Failed to get IP info: %s", err)
 				return err
@@ -71,7 +71,7 @@ func doSpeedTest(c *cli.Context, servers []defs.Server, telemetryServer defs.Tel
 			// skip ICMP if option given
 			currentServer.NoICMP = noICMP
 
-			p, jitter, err := currentServer.ICMPPingAndJitter(pingCount, c.String(defs.OptionSource), network)
+			p, jitter, err := currentServer.ICMPPingAndJitter(pingCount, c.String(defs.OptionSource), network, CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue)
 			if err != nil {
 				log.Errorf("Failed to get ping and jitter: %s", err)
 				return err
@@ -88,7 +88,7 @@ func doSpeedTest(c *cli.Context, servers []defs.Server, telemetryServer defs.Tel
 			if c.Bool(defs.OptionNoDownload) {
 				log.Info("Download test is disabled")
 			} else {
-				download, br, err := currentServer.Download(silent, c.Bool(defs.OptionBytes), c.Bool(defs.OptionMebiBytes), c.Int(defs.OptionConcurrent), c.Int(defs.OptionChunks), time.Duration(c.Int(defs.OptionDuration))*time.Second)
+				download, br, err := currentServer.Download(silent, c.Bool(defs.OptionBytes), c.Bool(defs.OptionMebiBytes), c.Int(defs.OptionConcurrent), c.Int(defs.OptionChunks), time.Duration(c.Int(defs.OptionDuration))*time.Second, CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue)
 				if err != nil {
 					log.Errorf("Failed to get download speed: %s", err)
 					return err
@@ -103,7 +103,7 @@ func doSpeedTest(c *cli.Context, servers []defs.Server, telemetryServer defs.Tel
 			if c.Bool(defs.OptionNoUpload) {
 				log.Info("Upload test is disabled")
 			} else {
-				upload, bw, err := currentServer.Upload(c.Bool(defs.OptionNoPreAllocate), silent, c.Bool(defs.OptionBytes), c.Bool(defs.OptionMebiBytes), c.Int(defs.OptionConcurrent), c.Int(defs.OptionUploadSize), time.Duration(c.Int(defs.OptionDuration))*time.Second)
+				upload, bw, err := currentServer.Upload(c.Bool(defs.OptionNoPreAllocate), silent, c.Bool(defs.OptionBytes), c.Bool(defs.OptionMebiBytes), c.Int(defs.OptionConcurrent), c.Int(defs.OptionUploadSize), time.Duration(c.Int(defs.OptionDuration))*time.Second, CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue)
 				if err != nil {
 					log.Errorf("Failed to get upload speed: %s", err)
 					return err
@@ -129,7 +129,7 @@ func doSpeedTest(c *cli.Context, servers []defs.Server, telemetryServer defs.Tel
 				extra.ServerName = currentServer.Name
 				extra.Extra = c.String(defs.OptionTelemetryExtra)
 
-				if link, err := sendTelemetry(telemetryServer, ispInfo, downloadValue, uploadValue, p, jitter, currentServer.TLog.String(), extra); err != nil {
+				if link, err := sendTelemetry(telemetryServer, ispInfo, downloadValue, uploadValue, p, jitter, currentServer.TLog.String(), extra, CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue); err != nil {
 					log.Errorf("Error when sending telemetry data: %s", err)
 				} else {
 					shareLink = link
@@ -207,7 +207,7 @@ func doSpeedTest(c *cli.Context, servers []defs.Server, telemetryServer defs.Tel
 }
 
 // sendTelemetry sends the telemetry result to server, if --share is given
-func sendTelemetry(telemetryServer defs.TelemetryServer, ispInfo *defs.GetIPResult, download, upload, pingVal, jitter float64, logs string, extra defs.TelemetryExtra) (string, error) {
+func sendTelemetry(telemetryServer defs.TelemetryServer, ispInfo *defs.GetIPResult, download, upload, pingVal, jitter float64, logs string, extra defs.TelemetryExtra, CustomUserAgent string, CustomHttpHeaderKey string, CustomHttpHeaderValue string) (string, error) {
 	var buf bytes.Buffer
 	wr := multipart.NewWriter(&buf)
 
@@ -285,7 +285,10 @@ func sendTelemetry(telemetryServer defs.TelemetryServer, ispInfo *defs.GetIPResu
 		return "", err
 	}
 	req.Header.Set("Content-Type", wr.FormDataContentType())
-	req.Header.Set("User-Agent", defs.UserAgent)
+	req.Header.Set("User-Agent", CustomUserAgent)
+	if CustomHttpHeaderKey != "" {
+		req.Header.Set(CustomHttpHeaderKey, CustomHttpHeaderValue)
+	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

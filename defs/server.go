@@ -37,7 +37,7 @@ type Server struct {
 }
 
 // IsUp checks the speed test backend is up by accessing the ping URL
-func (s *Server) IsUp() bool {
+func (s *Server) IsUp(CustomUserAgent string, CustomHttpHeaderKey string, CustomHttpHeaderValue string) bool {
 	t := time.Now()
 	defer func() {
 		s.TLog.Logf("Check backend is up took %s", time.Now().Sub(t).String())
@@ -51,7 +51,10 @@ func (s *Server) IsUp() bool {
 		log.Debugf("Failed when creating HTTP request: %s", err)
 		return false
 	}
-	req.Header.Set("User-Agent", UserAgent)
+	req.Header.Set("User-Agent", CustomUserAgent)
+	if CustomHttpHeaderKey != "" {
+		req.Header.Set(CustomHttpHeaderKey, CustomHttpHeaderValue)
+	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -68,7 +71,7 @@ func (s *Server) IsUp() bool {
 }
 
 // ICMPPingAndJitter pings the server via ICMP echos and calculate the average ping and jitter
-func (s *Server) ICMPPingAndJitter(count int, srcIp, network string) (float64, float64, error) {
+func (s *Server) ICMPPingAndJitter(count int, srcIp, network string, CustomUserAgent string, CustomHttpHeaderKey string, CustomHttpHeaderValue string) (float64, float64, error) {
 	t := time.Now()
 	defer func() {
 		s.TLog.Logf("ICMP ping took %s", time.Now().Sub(t).String())
@@ -76,7 +79,7 @@ func (s *Server) ICMPPingAndJitter(count int, srcIp, network string) (float64, f
 
 	if s.NoICMP {
 		log.Debugf("Skipping ICMP for server %s, will use HTTP ping", s.Name)
-		return s.PingAndJitter(count + 2)
+		return s.PingAndJitter(count+2, CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue)
 	}
 
 	u, err := s.GetURL()
@@ -98,7 +101,7 @@ func (s *Server) ICMPPingAndJitter(count int, srcIp, network string) (float64, f
 	if err := p.Run(); err != nil {
 		log.Debugf("Failed to ping target host: %s", err)
 		log.Debug("Will try TCP ping")
-		return s.PingAndJitter(count + 2)
+		return s.PingAndJitter(count+2, CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue)
 	}
 
 	stats := p.Statistics()
@@ -121,14 +124,14 @@ func (s *Server) ICMPPingAndJitter(count int, srcIp, network string) (float64, f
 	if len(stats.Rtts) == 0 {
 		s.NoICMP = true
 		log.Debugf("No ICMP pings returned for server %s (%s), trying TCP ping", s.Name, u.Hostname())
-		return s.PingAndJitter(count + 2)
+		return s.PingAndJitter(count+2, CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue)
 	}
 
 	return float64(stats.AvgRtt.Milliseconds()), jitter, nil
 }
 
 // PingAndJitter pings the server via accessing ping URL and calculate the average ping and jitter
-func (s *Server) PingAndJitter(count int) (float64, float64, error) {
+func (s *Server) PingAndJitter(count int, CustomUserAgent string, CustomHttpHeaderKey string, CustomHttpHeaderValue string) (float64, float64, error) {
 	t := time.Now()
 	defer func() {
 		s.TLog.Logf("TCP ping took %s", time.Now().Sub(t).String())
@@ -148,8 +151,10 @@ func (s *Server) PingAndJitter(count int) (float64, float64, error) {
 		log.Debugf("Failed when creating HTTP request: %s", err)
 		return 0, 0, err
 	}
-	req.Header.Set("User-Agent", UserAgent)
-
+	req.Header.Set("User-Agent", CustomUserAgent)
+	if CustomHttpHeaderKey != "" {
+		req.Header.Set(CustomHttpHeaderKey, CustomHttpHeaderValue)
+	}
 	for i := 0; i < count; i++ {
 		start := time.Now()
 		resp, err := http.DefaultClient.Do(req)
@@ -188,7 +193,7 @@ func (s *Server) PingAndJitter(count int) (float64, float64, error) {
 }
 
 // Download performs the actual download test
-func (s *Server) Download(silent bool, useBytes, useMebi bool, requests int, chunks int, duration time.Duration) (float64, uint64, error) {
+func (s *Server) Download(silent bool, useBytes, useMebi bool, requests int, chunks int, duration time.Duration, CustomUserAgent string, CustomHttpHeaderKey string, CustomHttpHeaderValue string) (float64, uint64, error) {
 	t := time.Now()
 	defer func() {
 		s.TLog.Logf("Download took %s", time.Now().Sub(t).String())
@@ -215,9 +220,11 @@ func (s *Server) Download(silent bool, useBytes, useMebi bool, requests int, chu
 	q := req.URL.Query()
 	q.Set("ckSize", strconv.Itoa(chunks))
 	req.URL.RawQuery = q.Encode()
-	req.Header.Set("User-Agent", UserAgent)
+	req.Header.Set("User-Agent", CustomUserAgent)
 	req.Header.Set("Accept-Encoding", "identity")
-
+	if CustomHttpHeaderKey != "" {
+		req.Header.Set(CustomHttpHeaderKey, CustomHttpHeaderValue)
+	}
 	downloadDone := make(chan struct{}, requests)
 
 	doDownload := func() {
@@ -280,7 +287,7 @@ Loop:
 }
 
 // Upload performs the actual upload test
-func (s *Server) Upload(noPrealloc, silent, useBytes, useMebi bool, requests int, uploadSize int, duration time.Duration) (float64, uint64, error) {
+func (s *Server) Upload(noPrealloc, silent, useBytes, useMebi bool, requests int, uploadSize int, duration time.Duration, CustomUserAgent string, CustomHttpHeaderKey string, CustomHttpHeaderValue string) (float64, uint64, error) {
 	t := time.Now()
 	defer func() {
 		s.TLog.Logf("Upload took %s", time.Now().Sub(t).String())
@@ -311,9 +318,11 @@ func (s *Server) Upload(noPrealloc, silent, useBytes, useMebi bool, requests int
 		log.Debugf("Failed when creating HTTP request: %s", err)
 		return 0, 0, err
 	}
-	req.Header.Set("User-Agent", UserAgent)
+	req.Header.Set("User-Agent", CustomUserAgent)
 	req.Header.Set("Accept-Encoding", "identity")
-
+	if CustomHttpHeaderKey != "" {
+		req.Header.Set(CustomHttpHeaderKey, CustomHttpHeaderValue)
+	}
 	uploadDone := make(chan struct{}, requests)
 
 	doUpload := func() {
@@ -373,7 +382,7 @@ Loop:
 }
 
 // GetIPInfo accesses the backend's getIP.php endpoint and get current client's IP information
-func (s *Server) GetIPInfo(distanceUnit string) (*GetIPResult, error) {
+func (s *Server) GetIPInfo(distanceUnit string, CustomUserAgent string, CustomHttpHeaderKey string, CustomHttpHeaderValue string) (*GetIPResult, error) {
 	t := time.Now()
 	defer func() {
 		s.TLog.Logf("Get IP info took %s", time.Now().Sub(t).String())
@@ -396,8 +405,10 @@ func (s *Server) GetIPInfo(distanceUnit string) (*GetIPResult, error) {
 		log.Debugf("Failed when creating HTTP request: %s", err)
 		return nil, err
 	}
-	req.Header.Set("User-Agent", UserAgent)
-
+	req.Header.Set("User-Agent", CustomUserAgent)
+	if CustomHttpHeaderKey != "" {
+		req.Header.Set(CustomHttpHeaderKey, CustomHttpHeaderValue)
+	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Debugf("Failed when making HTTP request: %s", err)

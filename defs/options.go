@@ -42,4 +42,9 @@ const (
 	OptionTelemetryPath   = "telemetry-path"
 	OptionTelemetryShare  = "telemetry-share"
 	OptionTelemetryExtra  = "telemetry-extra"
+
+	// 自定义添加项目
+	OptionUserAgent       = "user-agent"
+	OptionHttpHeaderKey   = "http-header-key"
+	OptionHttpHeaderValue = "http-header-value"
 )

@@ -171,7 +171,7 @@ func main() {
 			&cli.StringFlag{
 				Name: defs.OptionCACert,
 				Usage: "Use the specified CA certificate PEM bundle file instead\n" +
-				    "\tof the system certificate trust store",
+					"\tof the system certificate trust store",
 			},
 			&cli.BoolFlag{
 				Name:  defs.OptionSkipCertVerify,
@@ -217,6 +217,18 @@ func main() {
 				Name: defs.OptionTelemetryExtra,
 				Usage: "Send a custom message along with the telemetry results.\n" +
 					"\tImplies --" + defs.OptionShare,
+			},
+			&cli.StringFlag{
+				Name:  defs.OptionUserAgent,
+				Usage: "Set Custom User-Agent",
+			},
+			&cli.StringFlag{
+				Name:  defs.OptionHttpHeaderKey,
+				Usage: "Add Custom HttpHeader Key, eg: --" + defs.OptionHttpHeaderKey + " \"Cookie\"",
+			},
+			&cli.StringFlag{
+				Name:  defs.OptionHttpHeaderValue,
+				Usage: "Add Custom HttpHeader Value, eg: --" + defs.OptionHttpHeaderValue + " \"test=1\"",
 			},
 		},
 	}

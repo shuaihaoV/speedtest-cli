@@ -46,6 +46,21 @@ type PingResult struct {
 
 // SpeedTest is the actual main function that handles the speed test(s)
 func SpeedTest(c *cli.Context) error {
+	CustomUserAgent := defs.UserAgent
+	if str := c.String(defs.OptionUserAgent); str != "" {
+		CustomUserAgent = str
+	}
+
+	CustomHttpHeaderKey := ""
+	if str := c.String(defs.OptionHttpHeaderKey); str != "" {
+		CustomHttpHeaderKey = str
+	}
+
+	CustomHttpHeaderValue := ""
+	if str := c.String(defs.OptionHttpHeaderValue); str != "" {
+		CustomHttpHeaderValue = str
+	}
+
 	// check for suppressed output flags
 	var silent bool
 	if c.Bool(defs.OptionSimple) || c.Bool(defs.OptionJSON) || c.Bool(defs.OptionCSV) {
@@ -161,25 +176,25 @@ func SpeedTest(c *cli.Context) error {
 		network = "ip"
 	}
 
-    transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport := http.DefaultTransport.(*http.Transport).Clone()
 
-    if caCertFileName := c.String(defs.OptionCACert); caCertFileName != "" {
-        caCert, err := ioutil.ReadFile(caCertFileName)
-        if err != nil {
-            log.Fatal(err)
-        }
-        caCertPool := x509.NewCertPool()
-        caCertPool.AppendCertsFromPEM(caCert)
+	if caCertFileName := c.String(defs.OptionCACert); caCertFileName != "" {
+		caCert, err := ioutil.ReadFile(caCertFileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
 
-        transport.TLSClientConfig = &tls.Config{
-            InsecureSkipVerify: c.Bool(defs.OptionSkipCertVerify),
-            RootCAs: caCertPool,
-        }
-    } else {
-        transport.TLSClientConfig = &tls.Config{
-            InsecureSkipVerify: c.Bool(defs.OptionSkipCertVerify),
-        }
-    }
+		transport.TLSClientConfig = &tls.Config{
+			InsecureSkipVerify: c.Bool(defs.OptionSkipCertVerify),
+			RootCAs:            caCertPool,
+		}
+	} else {
+		transport.TLSClientConfig = &tls.Config{
+			InsecureSkipVerify: c.Bool(defs.OptionSkipCertVerify),
+		}
+	}
 
 	dialer := &net.Dialer{
 		Timeout:   30 * time.Second,
@@ -273,7 +288,7 @@ func SpeedTest(c *cli.Context) error {
 
 	// if --server is given, do speed tests with all of them
 	if len(c.IntSlice(defs.OptionServer)) > 0 {
-		return doSpeedTest(c, servers, telemetryServer, network, silent, noICMP)
+		return doSpeedTest(c, servers, telemetryServer, network, silent, noICMP, CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue)
 	} else {
 		// else select the fastest server from the list
 		log.Info("Selecting the fastest server based on ping")
@@ -287,7 +302,7 @@ func SpeedTest(c *cli.Context) error {
 
 		// spawn 10 concurrent pingers
 		for i := 0; i < 10; i++ {
-			go pingWorker(jobs, results, &wg, c.String(defs.OptionSource), network, noICMP)
+			go pingWorker(jobs, results, &wg, c.String(defs.OptionSource), network, noICMP, CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue)
 		}
 
 		// send ping jobs to workers
@@ -324,11 +339,11 @@ func SpeedTest(c *cli.Context) error {
 		}
 
 		// do speed test on the server
-		return doSpeedTest(c, []defs.Server{servers[serverIdx]}, telemetryServer, network, silent, noICMP)
+		return doSpeedTest(c, []defs.Server{servers[serverIdx]}, telemetryServer, network, silent, noICMP, CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue)
 	}
 }
 
-func pingWorker(jobs <-chan PingJob, results chan<- PingResult, wg *sync.WaitGroup, srcIp, network string, noICMP bool) {
+func pingWorker(jobs <-chan PingJob, results chan<- PingResult, wg *sync.WaitGroup, srcIp, network string, noICMP bool, CustomUserAgent string, CustomHttpHeaderKey string, CustomHttpHeaderValue string) {
 	for {
 		job := <-jobs
 		server := job.Server
@@ -341,12 +356,12 @@ func pingWorker(jobs <-chan PingJob, results chan<- PingResult, wg *sync.WaitGro
 		}
 
 		// check the server is up by accessing the ping URL and checking its returned value == empty and status code == 200
-		if server.IsUp() {
+		if server.IsUp(CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue) {
 			// skip ICMP if option given
 			server.NoICMP = noICMP
 
 			// if server is up, get ping
-			ping, _, err := server.ICMPPingAndJitter(1, srcIp, network)
+			ping, _, err := server.ICMPPingAndJitter(1, srcIp, network, CustomUserAgent, CustomHttpHeaderKey, CustomHttpHeaderValue)
 			if err != nil {
 				log.Debugf("Can't ping server %s (%s), skipping", server.Name, u.Hostname())
 				wg.Done()
